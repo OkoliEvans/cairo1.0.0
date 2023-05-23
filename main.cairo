@@ -43,6 +43,22 @@ func get_token_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     return pool_balance.read(token_type);
 }
 
+//  EXTERNALS
+//@dev set pool balance for a given token
+//@param token_type Token whose balance is to be set
+//@param amount Amount to be set as balance
+
+@external
+func set_pool_token_bal{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    token_type: felt, balance: felt
+) {
+    with_attr error_message("exceeds max allowed tokens") {
+    assert_nn_le(balance, BALANCE_UPPER_BOUND - 1);
+}
+    pool_balance.write(token_type, balance);
+    return ();
+}
+
 
 
 
