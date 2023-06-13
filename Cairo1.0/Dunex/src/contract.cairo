@@ -1,2 +1,1 @@
-mod hello_starknet;
-mod demo_acct;
+mod demo_acct2;
