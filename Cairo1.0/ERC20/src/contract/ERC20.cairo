@@ -15,7 +15,32 @@ mod Erc20 {
         allowances: LegacyMap::<(ContractAddress,ContractAddress), u256>,
     }
 
+    #[event]
+    fn Transfer(from: ContractAddress, to: ContractAddress, value: u256){}
+
+    #[event]
+    fn Approval(owner:ContractAddress, spender:ContractAddress, value:u256){}
+
+    #[constructor]
+    fn constructor(
+        name_: felt252,
+        symbol_: felt252,
+        decimal_: u32,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        name::write(name_);
+        symbol::write(symbol_);
+        decimal::write(decimal_);
+        assert(!recipient.is_zero(), 'Address zero detected');
+        total_supply::write(initial_supply);
+        balances::write(recipient, initial_supply);
+        Transfer(contract_address_const::<0>(), recipient, initial_supply);
+    }
+
     
+
+
 
 
 }
