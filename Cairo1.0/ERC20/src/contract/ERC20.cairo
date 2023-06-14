@@ -2,12 +2,11 @@
 mod Erc20 {
     use starknet::Zeroable;
     use starknet::get_caller_address;
- 
- transfer_helper(sender, recipient, amount);   use starknet::ContractAddress;
+    use starknet::ContractAddress;
     use starknet::contract_address_const;
     use starknet::contract_address::ContractAddressZeroable;
 
-    struct storage {
+    struct Storage {
         name: felt252,
         symbol: felt252,
         decimal: u32,
@@ -41,32 +40,32 @@ mod Erc20 {
 
     #[view]
     fn get_name() -> felt252 {
-        name::read();
+        name::read()
     }
 
     #[view]
     fn get_symbol() -> felt252 {
-        symbol::read();
+        symbol::read()
     }
 
     #[view]
     fn get_decimal() -> u32 {
-        decimal::read();
+        decimal::read()
     }
 
     #[view]
     fn get_total_supply() -> u256 {
-        total_supply::read();
+        total_supply::read()
     }
 
     #[view]
     fn get_balance_of(user: ContractAddress) -> u256 {
-        balances::read(user);
+        balances::read(user)
     }
 
     #[view]
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
-        allowances::read(owner, spender);
+        allowances::read((owner, spender))
     }
 
     #[external]
@@ -91,21 +90,37 @@ mod Erc20 {
     #[external]
     fn increase_allowance(spender:ContractAddress, amount_added: u256) {
         let caller = get_caller_address();
-        approve_helper(caller, spender, allowances::read(caller, spender) + amount_added);
+        approve_helper(caller, spender, allowances::read((caller, spender)) + amount_added);
     }
 
     #[external]
     fn decrease_allowance(spender:ContractAddress, amount_sub: u256) {
         let caller = get_caller_address();
-        approve_helper(caller, spender, allowances::read(caller, spender) - amount_sub);
+        approve_helper(caller, spender, allowances::read((caller, spender)) - amount_sub);
     }
 
-    
+    fn transfer_helper(sender:ContractAddress, recipient: ContractAddress, amount: u256) {
+        assert(!recipient.is_zero(), 'Transfer: recipient is addr 0');
+        assert(!sender.is_zero(), 'Transfer: sender is addr 0');
+        assert(amount > 0, 'Transfer: amount is 0');
+        balances::write(sender, balances::read(sender) - amount );
+        balances::write(recipient, balances::read(recipient) + amount );
+        Transfer( sender, recipient, amount);
+    }
 
-    
+    fn approve_helper(owner: ContractAddress, spender:ContractAddress, amount: u256) {
+        assert(!spender.is_zero(), 'Approve: spender is address 0');
+        allowances::write((owner, spender), amount);
+        Approval(owner, spender, amount);
+    }
 
-
-
-
+    fn spend_allowance(owner:ContractAddress, spender:ContractAddress, amount: u256) {
+        let current_allowance = allowances::read((owner, spender));
+        let ONES_MASK = 0xffffffffffffffffffffffffffffffff_u128;
+        let is_unlimited_allowance = current_allowance.low == ONES_MASK & current_allowance.high == ONES_MASK;
+        if !is_unlimited_allowance {
+            approve_helper(owner, spender, current_allowance - amount);
+        }
+    }
 
 }
