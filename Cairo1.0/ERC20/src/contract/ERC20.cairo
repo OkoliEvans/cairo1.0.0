@@ -1,8 +1,9 @@
 #[contract]
 mod Erc20 {
     use starknet::Zeroable;
-    use starknet::get_contract_address;
-    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+ 
+ transfer_helper(sender, recipient, amount);   use starknet::ContractAddress;
     use starknet::contract_address_const;
     use starknet::contract_address::ContractAddressZeroable;
 
@@ -66,6 +67,37 @@ mod Erc20 {
     #[view]
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
         allowances::read(owner, spender);
+    }
+
+    #[external]
+    fn transfer(recipient: ContractAddress, amount: u256) {
+        let sender = get_caller_address();
+        transfer_helper(sender, recipient, amount);
+    }
+
+    #[external]
+    fn transfer_from(sender:ContractAddress, recipient:ContractAddress, amount: u256) {
+        let caller = get_caller_address();
+        spend_allowance(sender, caller, amount);
+        transfer_helper(sender, recipient, amount);
+    }
+
+    #[external]
+    fn approve(spender: ContractAddress, amount: u256) {
+        let caller = get_caller_address();
+        approve_helper(caller, spender, amount);
+    }
+
+    #[external]
+    fn increase_allowance(spender:ContractAddress, amount_added: u256) {
+        let caller = get_caller_address();
+        approve_helper(caller, spender, allowances::read(caller, spender) + amount_added);
+    }
+
+    #[external]
+    fn decrease_allowance(spender:ContractAddress, amount_sub: u256) {
+        let caller = get_caller_address();
+        approve_helper(caller, spender, allowances::read(caller, spender) - amount_sub);
     }
 
     
