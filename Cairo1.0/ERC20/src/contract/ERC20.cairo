@@ -32,13 +32,46 @@ mod Erc20 {
         name::write(name_);
         symbol::write(symbol_);
         decimal::write(decimal_);
-        assert(!recipient.is_zero(), 'Address zero detected');
         total_supply::write(initial_supply);
+        assert(!recipient.is_zero(), 'Address zero detected');
         balances::write(recipient, initial_supply);
         Transfer(contract_address_const::<0>(), recipient, initial_supply);
     }
 
+    #[view]
+    fn get_name() -> felt252 {
+        name::read();
+    }
+
+    #[view]
+    fn get_symbol() -> felt252 {
+        symbol::read();
+    }
+
+    #[view]
+    fn get_decimal() -> u32 {
+        decimal::read();
+    }
+
+    #[view]
+    fn get_total_supply() -> u256 {
+        total_supply::read();
+    }
+
+    #[view]
+    fn get_balance_of(user: ContractAddress) -> u256 {
+        balances::read(user);
+    }
+
+    #[view]
+    fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
+        allowances::read(owner, spender);
+    }
+
     
+
+    
+
 
 
 
