@@ -1,28 +1,46 @@
-#[contract]
-mod ERC20_test {
     
-    use starknet::ContractAddress;
-    use starknet::contract_address_const;
-
-    use Erc20::constructor;
-    use Erc20::get_name;
-    use Erc20::get_symbol;
-    use Erc20::transfer;
-    use Erc20::transfer_from;
-    use Erc20::approve;
-    use Erc20::increase_allowance;
-    use Erc20::decrease_allowance;
+    use result::ResultTrait;
+    use array::ArrayTrait;
+    use traits::Into;
 
     const NAME: felt252 = 'Mock_ERC20';
     const SYMBOL: felt252 = 'MK-2';
+    const ACCOUNT: felt252 = 101010;
+    
 
-    #[test]
-    #[available_gas(2000000)]
-    fn constructor_test() {
-        let decimal: u32 = 18_u32;
-        let initial_supply: u256 = 1000000;
-        let account: ContractAddress = contract_address_const::<1>();
+  
+    fn __set__up() -> felt252{
+        let mut calldata = ArrayTrait::new();
+        let initial_supply: u256 = u256 { low: 0, high: 1000000 };
+        calldata.append(NAME);
+        calldata.append(SYMBOL);
+        calldata.append(18);
+        calldata.append(initial_supply.high.into());
+        calldata.append(initial_supply.low.into());
+        calldata.append(ACCOUNT);
 
+        let address = deploy_contract('ERC20', @calldata).unwrap();
+        return address;
     }
 
-}
+    #[test]
+    fn test_constructor() {
+        let deployment_address = __set__up();
+        let name = call(deployment_address, 'get_name', @ArrayTrait::new()).unwrap();
+        let symbol = call(deployment_address, 'get_symbol', @ArrayTrait::new()).unwrap();
+        let total_supply = call(deployment_address, 'get_total_supply', @ArrayTrait::new()).unwrap();
+        assert(*name.at(0_u32) == 'Mock_ERC20', 'invalid name');
+        assert(*symbol.at(0_u32) == 'MK-2', 'invalid symbol');
+        assert(*total_supply.at(0_u32) == 1000000, 'total supply err.');
+    }
+
+    #[test]
+    fn test_transfer() {
+        let deployment_address = __set__up();
+
+        invoke(deployment_address, 'transfer', @ArrayTrait::new()).unwrap();
+        
+    }
+
+
+

@@ -1,1 +1,1 @@
-mod ERC20;
+mod ERC20_Mock;
