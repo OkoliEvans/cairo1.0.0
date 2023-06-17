@@ -37,9 +37,14 @@
     #[test]
     fn test_transfer() {
         let deployment_address = __set__up();
+        let mut calldata = ArrayTrait::new();
+        let amount: u256 = u256 { low: 0, high: 20000 };
+        calldata.append(ACCOUNT);
+        calldata.append(amount.high.into());
+        calldata.append(amount.low.into());
 
-        invoke(deployment_address, 'transfer', @ArrayTrait::new()).unwrap();
-        
+        invoke(deployment_address, 'transfer', @calldata).unwrap();
+
     }
 
 
