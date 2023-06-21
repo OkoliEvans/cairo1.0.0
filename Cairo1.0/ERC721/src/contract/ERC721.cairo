@@ -9,7 +9,7 @@ mod ERC721 {
     symbol: felt252,
     Owner: felt252,
     balances: LegacyMap::< ContractAddress, u128>,
-    owners: LegacyMap::< ContractAddress, u32 >,
+    owners: LegacyMap::< u32, ContractAddress >,
     approvals: LegacyMap::< ContractAddress, u32>,
     tokenUri: LegacyMap::<u32, felt252>
   }
@@ -31,7 +31,28 @@ mod ERC721 {
         symbol::write(symbol_);
     }
 
-    
+    #[view]
+    fn get_name() -> felt252 {
+        name::read()
+    }
+
+    #[view]
+    fn get_symbol() -> felt252 {
+        symbol::read()
+    }
+
+    #[view]
+    fn get_owner(tokenId: u32) -> felt252 {
+        let owner = owners::read(tokenId);
+        owner
+    }
+
+    #[external]
+    fn transfer( to: ContractAddress, tokenId: u32) -> bool {
+        let owner = get_caller_address();
+        assert(!to.is_zero(), 'ERC721: zero address');
+        assert();
+    }
 
 
 }
