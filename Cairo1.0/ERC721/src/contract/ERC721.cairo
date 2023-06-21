@@ -66,6 +66,11 @@ mod ERC721 {
         true
     }
 
+    #[external]
+    fn mint(to: ContractAddress) {
+        
+    }
+
 
 }
 
