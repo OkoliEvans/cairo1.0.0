@@ -8,9 +8,9 @@ mod ERC721 {
     name: felt252,
     symbol: felt252,
     Owner: felt252,
-    balances: LegacyMap::< ContractAddress, u128>,
     owners: LegacyMap::< u32, ContractAddress >,
     approvals: LegacyMap::< ContractAddress, u32>,
+    balances: LegacyMap::<ContractAddress, u32>,
     tokenUri: LegacyMap::<u32, felt252>
   }
 
@@ -48,10 +48,22 @@ mod ERC721 {
     }
 
     #[external]
+    fn set_uri(tokenId: u32, uri: felt252) {
+        let owner = get_owner();
+        let caller = get_caller_address();
+        assert(caller == owner, 'Not authorized');
+        tokenUri::write(tokenId, uri);
+    }
+
+    #[external]
     fn transfer( to: ContractAddress, tokenId: u32) -> bool {
         let owner = get_caller_address();
         assert(!to.is_zero(), 'ERC721: zero address');
-        assert();
+        assert(!owner == to, 'Address parity');
+        balances::write(owner, balances::read(owner) - 1);
+        balances::write(to, balances::read(to) + 1);
+        owners::write(to, tokenId);
+        true
     }
 
 
