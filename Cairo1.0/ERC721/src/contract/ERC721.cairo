@@ -42,14 +42,14 @@ mod ERC721 {
     }
 
     #[view]
-    fn get_owner(tokenId: u32) -> felt252 {
+    fn get_owner(tokenId: u32) -> ContractAddress {
         let owner = owners::read(tokenId);
         owner
     }
 
     #[external]
     fn set_uri(tokenId: u32, uri: felt252) {
-        let owner = get_owner();
+        let owner = get_owner(tokenId);
         let caller = get_caller_address();
         assert(caller == owner, 'Not authorized');
         tokenUri::write(tokenId, uri);
@@ -67,7 +67,8 @@ mod ERC721 {
     }
 
     #[external]
-    fn mint(to: ContractAddress) {
+    fn mint(to: ContractAddress, tokenId: u32) {
+        assert(!to.is_zero(), 'Mint: Zero address');
         
     }
 
