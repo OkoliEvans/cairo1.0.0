@@ -59,7 +59,7 @@ mod ERC721 {
     fn transfer( to: ContractAddress, tokenId: u32) -> bool {
         let owner = get_caller_address();
         assert(!to.is_zero(), 'ERC721: zero address');
-        assert(!owner == to, 'Address parity');
+        assert(!owner = to, 'Address parity');
         balances::write(owner, balances::read(owner) - 1);
         balances::write(to, balances::read(to) + 1);
         owners::write(to, tokenId);
@@ -69,8 +69,11 @@ mod ERC721 {
     #[external]
     fn mint(to: ContractAddress, tokenId: u32) {
         assert(!to.is_zero(), 'Mint: Zero address');
-        
+        balances::write(to, balances::read(to) + 1);
+        owners::write(to, tokenId);
     }
+
+
 
 
 }
